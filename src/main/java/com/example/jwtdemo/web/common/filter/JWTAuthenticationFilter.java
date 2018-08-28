@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.example.jwtdemo.config.constant.JwtConstant;
 import com.example.jwtdemo.config.constant.MessageConstant;
 import com.example.jwtdemo.domain.model.APIResult;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureException;
@@ -11,6 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
@@ -20,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author liuyiqian
@@ -50,7 +54,11 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
         }
 
         try {
-            UsernamePasswordAuthenticationToken authentication = getAuthentication(token);
+
+            Claims claims = parseToken(token);
+
+            UsernamePasswordAuthenticationToken authentication = getAuthentication(claims);
+
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }catch (ExpiredJwtException e) {
             logger.error("Token已过期: {} " + e);
@@ -65,22 +73,27 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
         chain.doFilter(request, response);
     }
 
-    private UsernamePasswordAuthenticationToken getAuthentication(String token) {
-
-        // parse the token.
-        String user = Jwts.parser()
+    private Claims parseToken(String token) {
+        return Jwts.parser()
                 // 验签
                 .setSigningKey(JwtConstant.SECRET)
                 // 去掉 Bearer
                 .parseClaimsJws(token.replace(JwtConstant.TOKEN_PREFIX, ""))
-                .getBody()
-                .getSubject();
+                .getBody();
+    }
 
-        if (user != null) {
-            return new UsernamePasswordAuthenticationToken(user, null, new ArrayList<>());
-        }
+    private UsernamePasswordAuthenticationToken getAuthentication(Claims claims) {
 
-        return null;
+        // 拿用户名
+        String user = claims.getSubject();
+
+        // 得到 权限（角色）
+        List<GrantedAuthority> authorities = AuthorityUtils.commaSeparatedStringToAuthorityList((String) claims.get("authorities"));
+
+        // 返回验证令牌
+        return user != null ?
+                new UsernamePasswordAuthenticationToken(user, null, authorities) : null;
+
     }
 
     private void setResponse(HttpServletResponse response, int status, String message) throws IOException {

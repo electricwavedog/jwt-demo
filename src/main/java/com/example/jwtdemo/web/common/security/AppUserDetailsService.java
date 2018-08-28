@@ -1,6 +1,7 @@
 package com.example.jwtdemo.web.common.security;
 
 import com.example.jwtdemo.domain.model.TUser;
+import com.example.jwtdemo.domain.model.enums.Role;
 import com.example.jwtdemo.domain.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,7 +20,7 @@ public class AppUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
-        TUser tUser = userRepository.findByUserName(userName);
+        TUser tUser = userRepository.findByUsername(userName);
         if(tUser == null) {
             throw new UsernameNotFoundException("User not found");
         }

@@ -17,8 +17,8 @@ public class DemoController {
     @GetMapping("/hello")
     public APIResult hello() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userName = authentication.getPrincipal().toString();
-        return APIResult.success().setData("Hello," + userName);
+        String username = authentication.getPrincipal().toString();
+        return APIResult.success().setData("Hello," + username);
     }
 
 }

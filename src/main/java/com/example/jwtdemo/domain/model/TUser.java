@@ -24,7 +24,7 @@ public class TUser {
     @GeneratedValue
     private Long userId;
 
-    private String userName;
+    private String username;
 
     private String password;
 

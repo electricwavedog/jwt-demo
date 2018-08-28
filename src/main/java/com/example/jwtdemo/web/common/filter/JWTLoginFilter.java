@@ -5,6 +5,7 @@ import com.example.jwtdemo.config.constant.JwtConstant;
 import com.example.jwtdemo.config.constant.MessageConstant;
 import com.example.jwtdemo.domain.model.APIResult;
 import com.example.jwtdemo.domain.model.TUser;
+import com.example.jwtdemo.domain.model.enums.Role;
 import com.example.jwtdemo.domain.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
@@ -24,6 +25,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author liuyiqian
@@ -47,7 +50,7 @@ public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
                     .readValue(req.getInputStream(), TUser.class);
 
             return getAuthenticationManager().authenticate(new UsernamePasswordAuthenticationToken(
-                    user.getUserName(),
+                    user.getUsername(),
                     user.getPassword()));
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -75,8 +78,12 @@ public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
             e.printStackTrace();
         }
 
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("authorities", "ROLE_" + Role.USER.name());
+
         // 生成JWT
         String token = Jwts.builder()
+                .setClaims(claims)
                 // 用户名写入标题
                 .setSubject(((User) auth.getPrincipal()).getUsername())
                 // 有效期设置
@@ -87,7 +94,7 @@ public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
         // 将 JWT 写入 body
         res.addHeader(JwtConstant.HEADER_STRING, JwtConstant.TOKEN_PREFIX + token);
         res.setContentType("application/json;charset=utf-8");
-        res.getWriter().write(JSONObject.toJSONString(APIResult.success().setData(tUser.getUserName())));
+        res.getWriter().write(JSONObject.toJSONString(APIResult.success().setData(tUser.getUsername())));
     }
 
     @Override

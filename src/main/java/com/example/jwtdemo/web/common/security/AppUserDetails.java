@@ -12,7 +12,7 @@ public class AppUserDetails extends User {
     private TUser user;
 
     public AppUserDetails(TUser user) {
-        super(user.getUserName(), user.getPassword(), AuthorityUtils.createAuthorityList("ROLE_" + user.getRole().name()));
+        super(user.getUsername(), user.getPassword(), AuthorityUtils.createAuthorityList("ROLE_" + user.getRole().name()));
         this.user = user;
     }
 
