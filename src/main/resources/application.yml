@@ -15,3 +15,9 @@ server:
     context-path: '/'
 logging:
   config: classpath:logbak.xml
+
+# rsa key
+rsa:
+  key:
+    private: MIIBUwIBADANBgkqhkiG9w0BAQEFAASCAT0wggE5AgEAAkEAkiGhbOqckR7vaANZ3KLZGxaWTBpWrUiXbRIBiIwG8H+29vxVn4pcfvjjH4Lq0zO07zSL0cu8Kcp7aPy69AR+GQIDAQABAkATO0vUWrgKPUkCplZAPEpYT0uublTz7zbGivUatFsBcYkqRKyN4JOg0XeWRmSu/ZNZuUWUEQzBcoPzKP2zXIXRAiEA88lRyEGLlVU5dx76mOGsQ/jYJqlJMA2kOW1GPal0yj0CIQCZc9ZWUmpqoptJssS49JQa4Ms+zNX8f2zEtW37g8etDQIgI68vSmnVvbko3TfqpKA78AMn2Jjk/qSwijtlkbcRQl0CIBHhusdiYT495qSm7V+0OJINQgH2crUy0CT4E3HswFb9AiA6PbhtpSAnudEQb63S0ztyDbvVVrJYiCeGwpSPkkhHIQ==
+    public: MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAJIhoWzqnJEe72gDWdyi2RsWlkwaVq1Il20SAYiMBvB/tvb8VZ+KXH744x+C6tMztO80i9HLvCnKe2j8uvQEfhkCAwEAAQ==

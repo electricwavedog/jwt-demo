@@ -1,15 +1,18 @@
 package com.example.jwtdemo.web.common.filter;
 
 import com.alibaba.fastjson.JSONObject;
+import com.example.jwtdemo.config.AppConfig;
 import com.example.jwtdemo.config.constant.JwtConstant;
 import com.example.jwtdemo.config.constant.MessageConstant;
 import com.example.jwtdemo.domain.model.APIResult;
 import com.example.jwtdemo.domain.model.TUser;
 import com.example.jwtdemo.domain.model.enums.Role;
 import com.example.jwtdemo.domain.repository.UserRepository;
+import com.example.jwtdemo.domain.util.RSAUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.apache.commons.codec.binary.Base64;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -35,9 +38,12 @@ public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
 
 //    private final UserRepository userRepository;
 
-    public JWTLoginFilter(String url, AuthenticationManager authenticationManager) {
+    private final AppConfig appConfig;
+
+    public JWTLoginFilter(String url, AuthenticationManager authenticationManager, AppConfig appConfig) {
         super(new AntPathRequestMatcher(url));
 //        this.userRepository = userRepository;
+        this.appConfig = appConfig;
         setAuthenticationManager(authenticationManager);
     }
 
@@ -49,9 +55,18 @@ public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
             TUser user = new ObjectMapper()
                     .readValue(req.getInputStream(), TUser.class);
 
+            String password = null;
+            try {
+                // 密码解密
+                // 先用Base64对密码进行解码，再用RSA的私密对它进行解密
+                password = new String(RSAUtils.decryptByPrivateKey(Base64.decodeBase64(user.getPassword()), appConfig.getPrivateKey()));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
             return getAuthenticationManager().authenticate(new UsernamePasswordAuthenticationToken(
                     user.getUsername(),
-                    user.getPassword()));
+                    password));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

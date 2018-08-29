@@ -1,5 +1,6 @@
 package com.example.jwtdemo.config.system;
 
+import com.example.jwtdemo.config.AppConfig;
 import com.example.jwtdemo.domain.model.enums.Role;
 import com.example.jwtdemo.web.common.filter.JWTAuthenticationFilter;
 import com.example.jwtdemo.web.common.filter.JWTLoginFilter;
@@ -26,6 +27,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private AppUserDetailsService appUserDetailsService;
 
+    @Autowired
+    private AppConfig appConfig;
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
@@ -45,7 +49,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 //                .and()
 //                .csrf().ignoringAntMatchers("/app/**")
 //                .and()
-                .addFilterBefore(new JWTLoginFilter("/login", authenticationManager()), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JWTLoginFilter("/login", authenticationManager(), appConfig), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JWTAuthenticationFilter(authenticationManager()), UsernamePasswordAuthenticationFilter.class)
                 // 禁用缓存
                 .headers().cacheControl()
